@@ -3,7 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>ตารางเวรประจำวัน 2569</title>
+    
+    <!-- เพิ่มไอคอนสำหรับ Android และ iOS (ใช้ SVG Base64 เพื่อให้ไม่ต้องมีไฟล์รูปแยก) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%234f46e5%22/><path d=%22M25 35h50M25 50h50M25 65h30%22 stroke=%22white%22 stroke-width=%228%22 stroke-linecap=%22round%22/><rect x=%2220%22 y=%2220%22 width=%2260%22 height=%2260%22 rx=%225%22 fill=%22none%22 stroke=%22white%22 stroke-width=%226%22/></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%234f46e5%22/><path d=%22M25 35h50M25 50h50M25 65h30%22 stroke=%22white%22 stroke-width=%228%22 stroke-linecap=%22round%22/><rect x=%2220%22 y=%2220%22 width=%2260%22 height=%2260%22 rx=%225%22 fill=%22none%22 stroke=%22white%22 stroke-width=%226%22/></svg>">
+
+    <!-- จำลอง Web App Manifest พร้อมไอคอน -->
+    <link rel="manifest" href="data:application/manifest+json,{'name':'ตารางเวร 2569','short_name':'ตารางเวร','start_url':'.','display':'standalone','background_color':'#ffffff','theme_color':'#4f46e5','icons':[{'src':'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%234f46e5%22/><path d=%22M25 35h50M25 50h50M25 65h30%22 stroke=%22white%22 stroke-width=%228%22 stroke-linecap=%22round%22/><rect x=%2220%22 y=%2220%22 width=%2260%22 height=%2260%22 rx=%225%22 fill=%22none%22 stroke=%22white%22 stroke-width=%226%22/></svg>','sizes':'192x192','type':'image/svg+xml'}]}">
+
     <!-- โหลดไลบรารีที่จำเป็น -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
