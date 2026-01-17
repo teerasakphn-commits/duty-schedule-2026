@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ตารางเวรประจำวัน 2569</title>
+    <!-- โหลดไลบรารีที่จำเป็น -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Kanit', sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+            background-color: #f1f5f9;
+        }
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        const App = () => {
+            const DEFAULT_START_DATE = "2026-01-25";
+            const [currentDate, setCurrentDate] = useState(new Date(2026, 0, 1));
+            const [scheduleData, setScheduleData] = useState(() => {
+                const saved = localStorage.getItem('duty_schedule_2026_v2');
+                return saved ? JSON.parse(saved) : {};
+            });
+            const [isEditing, setIsEditing] = useState(null);
+            const [editStatus, setEditStatus] = useState("");
+            const [editNote, setEditNote] = useState("");
+            const [showThemePicker, setShowThemePicker] = useState(false);
+            const [themeColor, setThemeColor] = useState(() => localStorage.getItem('app_theme_v2') || 'indigo');
+
+            const themes = {
+                indigo: { primary: 'bg-indigo-600', secondary: 'bg-indigo-500', accent: 'bg-indigo-700/50' },
+                rose: { primary: 'bg-rose-600', secondary: 'bg-rose-500', accent: 'bg-rose-700/50' },
+                emerald: { primary: 'bg-emerald-600', secondary: 'bg-emerald-500', accent: 'bg-emerald-700/50' },
+                amber: { primary: 'bg-amber-600', secondary: 'bg-amber-500', accent: 'bg-amber-700/50' },
+                violet: { primary: 'bg-violet-600', secondary: 'bg-violet-500', accent: 'bg-violet-700/50' },
+                slate: { primary: 'bg-slate-700', secondary: 'bg-slate-600', accent: 'bg-slate-800/50' },
+            };
+
+            const currentTheme = themes[themeColor];
+
+            useEffect(() => {
+                localStorage.setItem('duty_schedule_2026_v2', JSON.stringify(scheduleData));
+            }, [scheduleData]);
+
+            useEffect(() => {
+                localStorage.setItem('app_theme_v2', themeColor);
+            }, [themeColor]);
+
+            const calculateScheduleFromPoint = (startStr, currentData = {}) => {
+                const newSchedule = { ...currentData };
+                const start = new Date(startStr);
+                const endDate = new Date(2026, 11, 31);
+                let current = new Date(start);
+                Object.keys(newSchedule).forEach(date => {
+                    if (new Date(date) >= start) newSchedule[date] = { ...newSchedule[date], status: undefined };
+                });
+                while (current <= endDate) {
+                    const dateStr = current.toISOString().split('T')[0];
+                    newSchedule[dateStr] = { ...newSchedule[dateStr], status: 'on' };
+                    current.setDate(current.getDate() + 1);
+                    for (let i = 0; i < 2; i++) {
+                        if (current <= endDate) {
+                            const offDateStr = current.toISOString().split('T')[0];
+                            newSchedule[offDateStr] = { ...newSchedule[offDateStr], status: 'off' };
+                            current.setDate(current.getDate() + 1);
+                        }
+                    }
+                }
+                return newSchedule;
+            };
+
+            useEffect(() => {
+                if (Object.keys(scheduleData).length === 0) {
+                    setScheduleData(calculateScheduleFromPoint(DEFAULT_START_DATE));
+                }
+            }, []);
+
+            const monthNames = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+
+            const calendarDays = useMemo(() => {
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth();
+                const days = [];
+                const firstDay = new Date(year, month, 1).getDay();
+                const totalDays = new Date(year, month + 1, 0).getDate();
+                for (let i = 0; i < firstDay; i++) days.push(null);
+                for (let i = 1; i <= totalDays; i++) {
+                    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                    days.push({ day: i, dateStr, ...scheduleData[dateStr] });
+                }
+                return days;
+            }, [currentDate, scheduleData]);
+
+            return (
+                <div className="min-h-screen flex justify-center items-start sm:p-4">
+                    <div className="w-full max-w-md bg-white shadow-2xl min-h-screen sm:min-h-0 sm:rounded-[2.5rem] overflow-hidden flex flex-col relative border border-slate-200">
+                        <div className={`${currentTheme.primary} p-6 pb-8 text-white pt-10 sm:pt-8 transition-colors duration-500`}>
+                            <div className="flex justify-between items-center mb-6">
+                                <h1 className="text-xl font-bold">ตารางเวรประจำวัน 2569</h1>
+                                <button onClick={() => setShowThemePicker(!showThemePicker)} className="w-10 h-10 flex items-center justify-center bg-white/20 rounded-full text-lg">🎨</button>
+                            </div>
+                            <div className={`flex justify-between items-center ${currentTheme.accent} rounded-3xl p-2`}>
+                                <button onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))} className="w-10 h-10 flex items-center justify-center">⬅️</button>
+                                <div className="text-lg font-bold">{monthNames[currentDate.getMonth()]} {currentDate.getFullYear() + 543}</div>
+                                <button onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))} className="w-10 h-10 flex items-center justify-center">➡️</button>
+                            </div>
+                        </div>
+
+                        {showThemePicker && (
+                            <div className="flex justify-around p-4 bg-slate-50 border-b gap-2">
+                                {Object.keys(themes).map(t => (
+                                    <div key={t} onClick={() => setThemeColor(t)} className={`w-8 h-8 rounded-full ${themes[t].primary} ${themeColor === t ? 'ring-4 ring-white shadow-lg scale-110' : 'opacity-60'} cursor-pointer`}></div>
+                                ))}
+                            </div>
+                        )}
+
+                        <div className="p-5 flex-grow mb-20">
+                            <div className="grid grid-cols-7 mb-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                <div>อา</div><div>จ</div><div>อ</div><div>พ</div><div>พฤ</div><div>ศ</div><div>ส</div>
+                            </div>
+                            <div className="grid grid-cols-7 gap-2">
+                                {calendarDays.map((day, idx) => {
+                                    if (!day) return <div key={idx}></div>;
+                                    let cellClass = "bg-slate-50 text-slate-400 border border-slate-100";
+                                    if (day.status === 'on') cellClass = `${currentTheme.primary} text-white font-bold shadow-md`;
+                                    if (day.status === 'off') cellClass = "bg-emerald-50 text-emerald-600 font-bold border border-emerald-100";
+                                    return (
+                                        <div key={day.dateStr} onClick={() => {
+                                            setIsEditing(day.dateStr);
+                                            setEditStatus(day.status || 'none');
+                                            setEditNote(day.note || "");
+                                        }} className={`aspect-square rounded-2xl flex items-center justify-center text-sm relative transition-all active:scale-90 ${cellClass}`}>
+                                            {day.day}
+                                            {day.note && <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-amber-400 rounded-full border border-white"></div>}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur-md border-t flex justify-around text-[10px] font-bold text-slate-500 safe-bottom">
+                            <div className="flex items-center gap-1.5"><div className={`w-3 h-3 ${currentTheme.primary} rounded-full`}></div> เข้าเวร</div>
+                            <div className="flex items-center gap-1.5"><div className="w-3 h-3 bg-emerald-400 rounded-full"></div> พักเวร</div>
+                            <div className="flex items-center gap-1.5"><div className="w-3 h-3 bg-amber-400 rounded-full"></div> มีบันทึก</div>
+                        </div>
+
+                        {isEditing && (
+                            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-end">
+                                <div className="bg-white w-full rounded-t-[3rem] p-8 pb-12 shadow-2xl animate-in slide-in-from-bottom">
+                                    <div className="flex justify-between items-center mb-6">
+                                        <div>
+                                            <h2 className="text-2xl font-bold">วันที่ {isEditing.split('-')[2]}</h2>
+                                            <p className="text-slate-400 text-sm">{monthNames[new Date(isEditing).getMonth()]} {new Date(isEditing).getFullYear() + 543}</p>
+                                        </div>
+                                        <button onClick={() => setIsEditing(null)} className="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-full text-slate-400">✕</button>
+                                    </div>
+                                    <div className="flex gap-2 mb-6">
+                                        <button onClick={() => setEditStatus('on')} className={`flex-1 p-4 rounded-2xl border-2 font-bold ${editStatus === 'on' ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-slate-100 text-slate-400'}`}>เข้าเวร</button>
+                                        <button onClick={() => setEditStatus('off')} className={`flex-1 p-4 rounded-2xl border-2 font-bold ${editStatus === 'off' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-100 text-slate-400'}`}>พักเวร</button>
+                                        <button onClick={() => setEditStatus('none')} className={`flex-1 p-4 rounded-2xl border-2 font-bold ${editStatus === 'none' ? 'border-slate-400 bg-slate-100 text-slate-600' : 'border-slate-100 text-slate-400'}`}>ลบเวร</button>
+                                    </div>
+                                    <textarea value={editNote} onChange={e => setEditNote(e.target.value)} className="w-full bg-slate-50 rounded-2xl p-4 h-24 mb-6 outline-none border-2 border-slate-100 focus:border-indigo-200" placeholder="บันทึกข้อความ..."></textarea>
+                                    <button onClick={() => {
+                                        let updated = { ...scheduleData };
+                                        updated[isEditing] = { ...updated[isEditing], note: editNote };
+                                        if (editStatus === 'on') updated = calculateScheduleFromPoint(isEditing, updated);
+                                        else if (editStatus === 'off') {
+                                            const d = new Date(isEditing); d.setDate(d.getDate() - 1);
+                                            updated = calculateScheduleFromPoint(d.toISOString().split('T')[0], updated);
+                                        } else delete updated[isEditing].status;
+                                        setScheduleData(updated); setIsEditing(null);
+                                    }} className={`${currentTheme.primary} w-full text-white py-5 rounded-[2rem] font-bold shadow-xl`}>บันทึกข้อมูล</button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
